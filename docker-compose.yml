@@ -1,0 +1,37 @@
+services:
+  db:
+    image: rakhaeg/db_seller
+    container_name: db_seller
+    hostname: 0.0.0.0
+    networks:
+      - sellernet
+    ports:
+      - 49153:5432
+    volumes:
+      - seller:/var/lib/postgresql/data
+
+  nodejs:
+    build:
+      context: .
+    image : rakhaeg/seller
+    container_name: service_seller
+    hostname: 0.0.0.0
+    networks:
+      - sellernet
+    ports:
+      - 5002:5002
+    command : bash -c "npm install && npm run migrate up && npm run start-prod"
+    environment:
+      - PGUSER=${PGUSER}
+      - PGPASSWORD=${PGPASSWORD}
+      - PGHOST=${PGHOST}
+      - PGPORT=${PGPORT}
+      - PGDATABASE=${PGDATABASE}
+
+
+volumes:
+ seller:
+
+networks:
+  sellernet:
+    driver: bridge
